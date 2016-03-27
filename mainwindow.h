@@ -23,6 +23,8 @@ private slots:
 
     void on_execButton_clicked();
 
+    void on_graphicsButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

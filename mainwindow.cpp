@@ -1,6 +1,9 @@
 #include "mainwindow.h"
+#include "graphwindow.h"
 #include "core.h"
+#include "database.h"
 #include "QtWidgets"
+#include <QWindow>
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -8,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->graphicsButton->setEnabled(true);
     statusBar()->showMessage("Готов к работе");
 }
 
@@ -18,7 +22,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_openButton_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this,"Открытие файла",QDir::homePath(),"*.*");
+    QString filename = QFileDialog::getOpenFileName(this,"Открытие файла",QDir::homePath(),"*.dpt");
     int counter=0;
     statusBar()->showMessage("Чтение файла");
     ui->progressTitle->setText("Чтение файла "+filename);
@@ -43,5 +47,12 @@ void MainWindow::on_execButton_clicked()
 
 void MainWindow::on_exitButton_clicked()
 {
-    QCoreApplication::instance()->exit();
+    db_close();
+    QApplication::exit();
+}
+
+void MainWindow::on_graphicsButton_clicked()
+{
+    GraphWindow *window = new GraphWindow;
+    window->show();
 }

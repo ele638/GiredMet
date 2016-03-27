@@ -17,6 +17,7 @@ void readFile(QString filename, int* counter){
         alert.exec();
         qDebug() << "Ошибка при открытии файла";
     }else{
+        init();
         QString line;
         while(!inputFile.atEnd()){
             line = inputFile.readLine();
@@ -28,7 +29,7 @@ void readFile(QString filename, int* counter){
 
             qApp->processEvents(); // системный метод, чтобы интерфейс не зависал во время чтения файла
 
-            // TODO: вписать метод заполнения базы данных
+            db_add("r", list.at(0).toDouble(0), "w", list.at(1).toDouble(0));
 
             count++;
         }
