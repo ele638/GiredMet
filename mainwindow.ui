@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>588</width>
     <height>205</height>
    </rect>
   </property>
@@ -39,13 +39,6 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="2">
-     <widget class="QPushButton" name="exitButton">
-      <property name="text">
-       <string>Выход</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QLabel" name="value">
       <property name="text">
@@ -63,25 +56,6 @@
       </property>
       <property name="text">
        <string>График</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QTextEdit" name="textEdit">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -108,14 +82,33 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QProgressBar" name="progressBar">
-      <property name="value">
-       <number>0</number>
+    <item row="1" column="3">
+     <widget class="QPushButton" name="exitButton">
+      <property name="text">
+       <string>Выход</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="0" column="1" colspan="3">
+     <widget class="QTextEdit" name="textEdit">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="4">
      <widget class="QLabel" name="progressTitle">
       <property name="text">
        <string/>
@@ -129,7 +122,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>588</width>
      <height>22</height>
     </rect>
    </property>

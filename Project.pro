@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += printsupport
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,9 +16,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp\
-        qcustomplot.cpp
+        qcustomplot.cpp \
+    core.cpp \
+    database.cpp
 
 HEADERS  += mainwindow.h\
-         qcustomplot.h
+         qcustomplot.h \
+    core.h \
+    database.h
 
 FORMS    += mainwindow.ui
