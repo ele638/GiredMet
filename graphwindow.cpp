@@ -2,12 +2,6 @@
 #include "ui_graphwindow.h"
 #include "qcustomplot.h"
 #include "graphics.h"
-#include <QMouseEvent>
-#include <QRubberBand>
-#include <QPoint>
-
-QPoint rubberOrigin, rubberNext;
-QRubberBand *rubberBand;
 
 GraphWindow::GraphWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,7 +20,6 @@ GraphWindow::GraphWindow(QWidget *parent) :
     textLabel->setText("Maximum at ["+QString::number(getmax('x'))+":"+QString::number(getmax('y'))+"]");
     textLabel->setFont(QFont(font().family(), 16)); // make font a bit larger
     textLabel->setPen(QPen(Qt::black)); // show black border around text
-
     // add the arrow:
     QCPItemLine *arrow = new QCPItemLine(ui->plot);
     ui->plot->addItem(arrow);
@@ -34,8 +27,6 @@ GraphWindow::GraphWindow(QWidget *parent) :
 
     arrow->end->setCoords(getmaxi('x'), getmaxi('y')); // point to (4, 1.6) in x-y-plot coordinates
     arrow->setHead(QCPLineEnding::esSpikeArrow);
-
-
 }
 
 

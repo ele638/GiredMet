@@ -19,10 +19,10 @@ void init(){
          msg.exec();
          qDebug("База не подключена");
      }else{
-         //QSqlQuery query(db);
-         //if (query.exec("DROP TABLE IF EXISTS calc")) qDebug("DROP TABLE exec");
-         //if (query.exec("CREATE TABLE calc (id serial PRIMARY KEY, R double precision, W double precision)")) qDebug("CREATE TABLE exec");
-         //query.clear();
+         QSqlQuery query(db);
+         if (query.exec("DROP TABLE IF EXISTS calc")) qDebug("DROP TABLE exec");
+         if (query.exec("CREATE TABLE calc (id serial PRIMARY KEY, R double precision, W double precision)")) qDebug("CREATE TABLE exec");
+         query.clear();
          qDebug("База подключена");
      }
 }
@@ -30,6 +30,7 @@ void init(){
 // метод вставки элемента по имени поля
 void db_add(QString name, double value){
     QSqlQuery query(db);
+
     if(query.exec("INSERT INTO calc ("+name+") VALUES ("+QString::number(value)+")")){
         qDebug("INSERT exec");
     }
@@ -42,8 +43,7 @@ void db_add(QString name, double value){
 // перегрузка метода для двух полей
 void db_add(QString name1, double value1, QString name2, double value2){
     QSqlQuery query(db);
-    if(query.exec( "INSERT INTO calc ("+name1+","+name2+") VALUES ("+ QString::number(value1,'g',10)+ ","+ QString::number(value2,'g',10)+ ")")) {
-        qDebug("INSERT exec");
+    if(value1 && value2 &&  query.exec( "INSERT INTO calc ("+name1+","+name2+") VALUES ("+ QString::number(value1,'g',10)+ ","+ QString::number(value2,'g',10)+ ")")) {
     }
     else{
         qDebug() << query.lastError().text();
@@ -57,10 +57,9 @@ QVector <QVector <double> > db_get_all(QString name1, QString name2){
     QVector<double> x;
     QVector<double> y;
     if(query.exec("SELECT "+name1+","+name2+" FROM calc")) {
-        qDebug("SELECT exec");
         query.next();
         for(int i=0; i<query.size(); i++){
-           x.push_back(query.value(0).toDouble(0));
+           if(!query.value(0).isNull()) x.push_back(query.value(0).toDouble(0));
            y.push_back(query.value(1).toDouble(0));
            query.next();
         }

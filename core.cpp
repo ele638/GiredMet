@@ -4,6 +4,9 @@
 #include <database.h>
 #include <QApplication>
 #include <QDebug>
+#include <math.h>
+#include <gsl/gsl_integration.h>
+
 using namespace std;
 
 // Считываение файла
@@ -28,11 +31,37 @@ void readFile(QString filename, int* counter){
                 (в типе float дробная часть отделяется запятой) */
 
             qApp->processEvents(); // системный метод, чтобы интерфейс не зависал во время чтения файла
-
-            db_add("r", list.at(0).toDouble(0), "w", list.at(1).toDouble(0));
-
+            if(!list.empty() && list.size()==2){
+                db_add("r", list.at(0).toDouble(0), "w", list.at(1).toDouble(0));
+            }
             count++;
         }
     }
     *counter=count; // вывод количества прочитанных строк
+}
+
+double f (double x, void * params) {
+  double alpha = *(double *) params;
+  double f = log(alpha*x) / sqrt(x);
+  return f;
+}
+
+void integral(){
+    gsl_integration_workspace * w
+        = gsl_integration_workspace_alloc (1000);
+
+      double result, error;
+      double expected = -4.0;
+      double alpha = 1.0;
+
+      gsl_function F;
+      F.function = &f;
+      F.params = &alpha;
+
+      gsl_integration_qags (&F, 0, 1, 0, 1e-7, 1000,
+                            w, &result, &error);
+      QMessageBox msg;
+      msg.setText(QString::number(result));
+      msg.exec();
+      gsl_integration_workspace_free (w);
 }

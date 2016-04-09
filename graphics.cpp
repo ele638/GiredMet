@@ -9,7 +9,6 @@ QVector<double> y ;
 
 
 void initgraph(){
-    init();
     in = db_get_all("r", "w");
     x = in.at(0);
     y = in.at(1);

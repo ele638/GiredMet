@@ -40,6 +40,7 @@ void MainWindow::on_execButton_clicked()
 {
     ui->progressTitle->setText("Вычисление...");
     qApp->processEvents();
+
     ui->progressTitle->setText("");
     ui->graphicsButton->setEnabled(true);
     statusBar()->showMessage("Данные обработаны");
