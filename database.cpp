@@ -7,23 +7,28 @@
 QSqlDatabase db;
 
 // пробный метод подключения БД, неработоспособно вне моего компа
-void init(){
-     QMessageBox msg;
-     db = QSqlDatabase::addDatabase("QPSQL");
-     db.setHostName("localhost");
-     db.setDatabaseName("ele638");
-     db.setUserName("ele638");
-     db.setPassword("alpine");
+bool db_init(bool psql){
+     if(psql){
+         db = QSqlDatabase::addDatabase("QPSQL");
+         db.setHostName("other");
+         db.setDatabaseName("postgres");
+         db.setUserName("postgres");
+         db.setPassword("postgres");
+     }else{
+         db = QSqlDatabase::addDatabase("QSQLITE");
+         db.setDatabaseName(qApp->applicationDirPath()+"mydb.db");
+     }
      if(!db.open()){
-         msg.setText("Не удалось подключить базу данных");
-         msg.exec();
+         db.close();
          qDebug("База не подключена");
+         return false;
      }else{
          QSqlQuery query(db);
          if (query.exec("DROP TABLE IF EXISTS calc")) qDebug("DROP TABLE exec");
-         if (query.exec("CREATE TABLE calc (id serial PRIMARY KEY, R double precision, W double precision)")) qDebug("CREATE TABLE exec");
+         if (query.exec("CREATE TABLE calc (id serial PRIMARY KEY, r double precision, w double precision)")) qDebug("CREATE TABLE exec");
          query.clear();
          qDebug("База подключена");
+         return true;
      }
 }
 
@@ -59,12 +64,16 @@ QVector <QVector <double> > db_get_all(QString name1, QString name2){
     if(query.exec("SELECT "+name1+","+name2+" FROM calc")) {
         query.next();
         for(int i=0; i<query.size(); i++){
-           if(!query.value(0).isNull()) x.push_back(query.value(0).toDouble(0));
-           y.push_back(query.value(1).toDouble(0));
+           if(!query.value(0).isNull()){
+               x.push_back(query.value(0).toDouble(0));
+               y.push_back(query.value(1).toDouble(0));
+               qDebug() << "SELECT VALUE";
+           }
            query.next();
         }
         out.push_back(x);
         out.push_back(y);
+        qDebug() << out.size();
         return out;
     }
     else{
@@ -76,7 +85,6 @@ QVector <QVector <double> > db_get_all(QString name1, QString name2){
 
 void db_close(){
     db.close();
-    QSqlDatabase::removeDatabase(db.connectionName());
     if(!db.isOpen()) qDebug() << "Database disconnected";
 
 }

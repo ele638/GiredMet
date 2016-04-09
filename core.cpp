@@ -4,13 +4,14 @@
 #include <database.h>
 #include <QApplication>
 #include <QDebug>
+#include <QProgressBar>
 #include <math.h>
 #include <gsl/gsl_integration.h>
 
 using namespace std;
 
 // Считываение файла
-void readFile(QString filename, int* counter){
+void readFile(QString filename, int* counter, QProgressBar* bar){
     QFile inputFile(filename);
     int count=0;
     if (!inputFile.open(QIODevice::ReadOnly))
@@ -20,7 +21,6 @@ void readFile(QString filename, int* counter){
         alert.exec();
         qDebug() << "Ошибка при открытии файла";
     }else{
-        init();
         QString line;
         while(!inputFile.atEnd()){
             line = inputFile.readLine();
@@ -30,11 +30,13 @@ void readFile(QString filename, int* counter){
                 значит надо делить строку по запятой
                 (в типе float дробная часть отделяется запятой) */
 
-            qApp->processEvents(); // системный метод, чтобы интерфейс не зависал во время чтения файла
+            // системный метод, чтобы интерфейс не зависал во время чтения файла
             if(!list.empty() && list.size()==2){
                 db_add("r", list.at(0).toDouble(0), "w", list.at(1).toDouble(0));
+                count++;
+                bar->setValue(count);
             }
-            count++;
+            qApp->processEvents();
         }
     }
     *counter=count; // вывод количества прочитанных строк

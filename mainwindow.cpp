@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->graphicsButton->setEnabled(true);
     statusBar()->showMessage("Готов к работе");
+    ui->progressBar->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -20,19 +20,59 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
 void MainWindow::on_openButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,"Открытие файла",QDir::homePath(),"*.dpt");
     int counter=0;
+    QProcess process;
+    QStringList args;
+    args << "-c" << "wc -l "+filename+" | grep -o '[0-9]*'";
+    process.start("/bin/sh", args);
+    process.waitForFinished(-1);
+    int totalcount = QString(process.readAll()).toInt();
     statusBar()->showMessage("Чтение файла");
     ui->progressTitle->setText("Чтение файла "+filename);
     ui->openButton->setEnabled(false);
-    readFile(filename, &counter);
-    ui->progressTitle->setText("");
-    ui->openButton->setEnabled(true);
-    ui->execButton->setEnabled(true);
-    statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
-
+    ui->progressBar->setMaximum(totalcount);
+    ui->progressBar->setValue(0);
+    ui->progressBar->setVisible(true);
+    if (db_init(true)){
+        readFile(filename, &counter, ui->progressBar);
+        ui->progressTitle->setText("");
+        ui->openButton->setEnabled(true);
+        ui->execButton->setEnabled(true);
+        ui->progressBar->setVisible(false);
+        statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
+    }else{
+        QMessageBox msg;
+        msg.setWindowTitle("Alert Database");
+        msg.setText("Невозможно подключиться к серверу PostgreSQL"
+                    "(возможно клиент настроен некорректно)"
+                    "Попробовать подключить MySQL базу данных?"
+                    "(это вызовет небольшое замедление программы)");
+        msg.addButton(QMessageBox::Yes);
+        msg.addButton(QMessageBox::No);
+        int choice = msg.exec();
+        if(choice == QMessageBox::Yes){
+            if(db_init(false)){
+                readFile(filename, &counter, ui->progressBar);
+                ui->progressTitle->setText("");
+                ui->openButton->setEnabled(true);
+                ui->execButton->setEnabled(true);
+                ui->progressBar->setVisible(false);
+                statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
+            }else{
+                QMessageBox msg;
+                msg.setText("Невозможно подключить базу данных");
+                msg.exec();
+                db_close();
+                QApplication::exit();
+            }
+        }else{
+            db_close();
+        }
+    }
 }
 
 

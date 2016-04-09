@@ -13,7 +13,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Project
 TEMPLATE = app
 
-
+INCLUDEPATH += /usr/include/gsl
+LIBS    += -L/usr/lib -lgsl -lgslcblas
 SOURCES += main.cpp\
         mainwindow.cpp\
         qcustomplot.cpp \
