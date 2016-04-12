@@ -8,7 +8,12 @@
 #include <math.h>
 #include <gsl/gsl_integration.h>
 
+
 using namespace std;
+
+QVector<double> all_R;
+QVector<double> all_w;
+double Rw, Rw0, w0;
 
 // Считываение файла
 void readFile(QString filename, int* counter, QProgressBar* bar){
@@ -42,26 +47,28 @@ void readFile(QString filename, int* counter, QProgressBar* bar){
     *counter=count; // вывод количества прочитанных строк
 }
 
-double f (double x, void * params) {
-  double alpha = *(double *) params;
-  double f = log(alpha*x) / sqrt(x);
-  return f;
+double f (double w, void * params) {
+
+    double f = (log(all_R.value(all_w.indexOf(w))) - log(Rw0)) / (w - w0);
+    return f;
 }
 
+
+
 void integral(){
-    gsl_integration_workspace * w
-        = gsl_integration_workspace_alloc (1000);
+      all_R = get_all_R();
+      all_w = get_all_w();
+      gsl_integration_workspace * w
+        = gsl_integration_workspace_alloc (all_w.size());
 
       double result, error;
-      double expected = -4.0;
-      double alpha = 1.0;
-
+      w0 = all_w[0];
+      Rw0 = get_R(w0);
       gsl_function F;
       F.function = &f;
-      F.params = &alpha;
 
-      gsl_integration_qags (&F, 0, 1, 0, 1e-7, 1000,
-                            w, &result, &error);
+      gsl_integration_qagp(&F, (double*) &all_w[0], (size_t) all_w.size(), 0, 1, all_w.size(),
+                           w, &result, &error);
       QMessageBox msg;
       msg.setText(QString::number(result));
       msg.exec();

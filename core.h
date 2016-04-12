@@ -2,6 +2,6 @@
 #define CORE_H
 #include <QProgressBar>
    void readFile(QString filename, int* counter, QProgressBar* bar);
-   double f (double x, void * params) ;
+   double f (double w, void * params);
    void integral();
 #endif // CORE_H

@@ -11,8 +11,35 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    statusBar()->showMessage("Готов к работе");
-    ui->progressBar->setVisible(false);
+    if (!db_init(true)){
+        db_close();
+        QMessageBox msg;
+        msg.setWindowTitle("Alert Database");
+        msg.setText("Невозможно подключиться к серверу PostgreSQL "
+                    "(возможно клиент настроен некорректно)"
+                    " Попробовать подключить MySQL базу данных?"
+                    " (это вызовет небольшое замедление программы)");
+        msg.addButton(QMessageBox::Yes);
+        msg.addButton(QMessageBox::No);
+        if(msg.exec()==QMessageBox::Yes){
+            if(!db_init(false)){
+                QMessageBox msg;
+                msg.setText("Невозможно подключить базу данных");
+                msg.exec();
+                db_close();
+                QApplication::exit();
+            }else{
+                ui->openButton->setEnabled(true);
+                statusBar()->showMessage("Готов к работе");
+            }
+        }else{
+        }
+    }else{
+        ui->openButton->setEnabled(true);
+        statusBar()->showMessage("Готов к работе");
+    }
+
+
 }
 
 MainWindow::~MainWindow()
@@ -24,55 +51,30 @@ MainWindow::~MainWindow()
 void MainWindow::on_openButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this,"Открытие файла",QDir::homePath(),"*.dpt");
+    if (filename=="") return;
     int counter=0;
     QProcess process;
     QStringList args;
-    args << "-c" << "wc -l "+filename+" | grep -o '[0-9]*'";
+#ifdef Q_OS_DARWIN
+    args << "-c" << "wc -l "+filename+" | grep -o '[0-9]* '";
     process.start("/bin/sh", args);
     process.waitForFinished(-1);
     int totalcount = QString(process.readAll()).toInt();
+#else
+    int counter=0;
+#endif
     statusBar()->showMessage("Чтение файла");
     ui->progressTitle->setText("Чтение файла "+filename);
     ui->openButton->setEnabled(false);
     ui->progressBar->setMaximum(totalcount);
     ui->progressBar->setValue(0);
     ui->progressBar->setVisible(true);
-    if (db_init(true)){
-        readFile(filename, &counter, ui->progressBar);
-        ui->progressTitle->setText("");
-        ui->openButton->setEnabled(true);
-        ui->execButton->setEnabled(true);
-        ui->progressBar->setVisible(false);
-        statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
-    }else{
-        QMessageBox msg;
-        msg.setWindowTitle("Alert Database");
-        msg.setText("Невозможно подключиться к серверу PostgreSQL"
-                    "(возможно клиент настроен некорректно)"
-                    "Попробовать подключить MySQL базу данных?"
-                    "(это вызовет небольшое замедление программы)");
-        msg.addButton(QMessageBox::Yes);
-        msg.addButton(QMessageBox::No);
-        int choice = msg.exec();
-        if(choice == QMessageBox::Yes){
-            if(db_init(false)){
-                readFile(filename, &counter, ui->progressBar);
-                ui->progressTitle->setText("");
-                ui->openButton->setEnabled(true);
-                ui->execButton->setEnabled(true);
-                ui->progressBar->setVisible(false);
-                statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
-            }else{
-                QMessageBox msg;
-                msg.setText("Невозможно подключить базу данных");
-                msg.exec();
-                db_close();
-                QApplication::exit();
-            }
-        }else{
-            db_close();
-        }
-    }
+    readFile(filename, &counter, ui->progressBar);
+    ui->progressTitle->setText("");
+    ui->openButton->setEnabled(true);
+    ui->execButton->setEnabled(true);
+    ui->progressBar->setVisible(false);
+    statusBar()->showMessage("Прочитано "+QString::number(counter)+" строк");
 }
 
 
@@ -80,7 +82,7 @@ void MainWindow::on_execButton_clicked()
 {
     ui->progressTitle->setText("Вычисление...");
     qApp->processEvents();
-
+    integral();
     ui->progressTitle->setText("");
     ui->graphicsButton->setEnabled(true);
     statusBar()->showMessage("Данные обработаны");
