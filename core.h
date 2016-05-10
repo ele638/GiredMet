@@ -1,7 +1,9 @@
 #ifndef CORE_H
 #define CORE_H
 #include <QProgressBar>
-   void readFile(QString filename, int* counter, QProgressBar* bar);
-   double f (double w, void * params);
-   void integral();
+#include <QLabel>
+   int readFileSize(QString filename);
+   void readFile(QString filename, int size, QProgressBar* bar);
+   double getint();
+   bool getintegral(QProgressBar* bar, QLabel* label);
 #endif // CORE_H

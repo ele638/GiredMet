@@ -9,10 +9,9 @@ QVector<double> y ;
 
 
 void initgraph(){
-    in = db_get_all("r", "w");
-    if(in.size()==2){
-        x = in.at(0);
-        y = in.at(1);
+        in = db_get_all_epsJm();
+        x = in[0];
+        y = in[1];
         xmax=x.at(0);
         xmin=x.at(1);
         ymax=y.at(0);
@@ -29,7 +28,6 @@ void initgraph(){
                 mini=i;
             }
         }
-    }
 
 }
 

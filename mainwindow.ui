@@ -39,20 +39,10 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="2">
-     <widget class="QPushButton" name="graphicsButton">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>График</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="1">
      <widget class="QPushButton" name="execButton">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>Рассчитать</string>
@@ -82,7 +72,14 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0" colspan="4" alignment="Qt::AlignBottom">
+    <item row="3" column="0" colspan="4" alignment="Qt::AlignVCenter">
+     <widget class="QLabel" name="progressTitle">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0" colspan="4" alignment="Qt::AlignBottom">
      <widget class="QProgressBar" name="progressBar">
       <property name="enabled">
        <bool>true</bool>
@@ -110,8 +107,18 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="4" alignment="Qt::AlignVCenter">
-     <widget class="QLabel" name="progressTitle">
+    <item row="1" column="2">
+     <widget class="QPushButton" name="graphicsButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>График</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="4">
+     <widget class="QLabel" name="progressCounter">
       <property name="text">
        <string/>
       </property>
@@ -128,8 +135,20 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuDB_load">
+    <property name="title">
+     <string>DB load</string>
+    </property>
+    <addaction name="actionDB_load"/>
+   </widget>
+   <addaction name="menuDB_load"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionDB_load">
+   <property name="text">
+    <string>DB load</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

@@ -1,3 +1,4 @@
+#include <QtWidgets>
 #include <QFile>
 #include <QString>
 #include <QMessageBox>
@@ -6,19 +7,36 @@
 #include <QDebug>
 #include <QProgressBar>
 #include <math.h>
-#include <gsl/gsl_integration.h>
-
+#include "thread.h"
 
 using namespace std;
 
 QVector<double> all_R;
 QVector<double> all_w;
-double Rw, Rw0, w0;
+
+int readFileSize(QString filename){
+    int count = 0;
+    QFile inputFile(filename);
+    if (!inputFile.open(QIODevice::ReadOnly))
+    {
+        QMessageBox alert;
+        alert.setText("Ошибка при открытии файла");
+        alert.exec();
+        qDebug() << "Ошибка при открытии файла";
+    }else{
+        QString line;
+        while(!inputFile.atEnd()){
+            inputFile.readLine();
+            count++;
+        }
+    }
+    return count;
+}
 
 // Считываение файла
-void readFile(QString filename, int* counter, QProgressBar* bar){
+void readFile(QString filename, int size, QProgressBar* bar){
     QFile inputFile(filename);
-    int count=0;
+    int counter = 0;
     if (!inputFile.open(QIODevice::ReadOnly))
     {
         QMessageBox alert;
@@ -30,47 +48,139 @@ void readFile(QString filename, int* counter, QProgressBar* bar){
         while(!inputFile.atEnd()){
             line = inputFile.readLine();
             QStringList list = line.split(",");
-
-            /* данные в файле представленны в формате $f,%f\n,
-                значит надо делить строку по запятой
-                (в типе float дробная часть отделяется запятой) */
-
-            // системный метод, чтобы интерфейс не зависал во время чтения файла
             if(!list.empty() && list.size()==2){
-                db_add("r", list.at(0).toDouble(0), "w", list.at(1).toDouble(0));
-                count++;
-                bar->setValue(count);
+                db_add("w", 2 * M_PI *list.at(0).toDouble(0), "r", list.at(1).toDouble(0));
+                counter++;
+                bar->setValue(counter);
+                qApp->processEvents();
             }
-            qApp->processEvents();
         }
     }
-    *counter=count; // вывод количества прочитанных строк
+    qDebug("Файл считан");
 }
 
-double f (double w, void * params) {
+double getint(QVector<double> arrR, QVector<double> arrW, unsigned int n, unsigned int i){
+    double sum=0;
+    unsigned int j=0;
+    double y1, y2;
+    double x1, x2;
+    if (arrW[0]==arrW[i]){
+        y1=(log(arrR[1])-log(arrR[i]))/(arrW[1]*arrW[1]-arrW[i]*arrW[i]);
+        x1=arrW[1];
+        j=2;
+    }else{
+        y1=(log(arrR[0])-log(arrR[i]))/(arrW[0]*arrW[0]-arrW[i]*arrW[i]);
+        x1=arrW[0];
+        j=1;
+    }
 
-    double f = (log(all_R.value(all_w.indexOf(w))) - log(Rw0)) / (w - w0);
-    return f;
+    for(; j<n; j++){
+        if (arrW[i]==arrW[j]) {
+            continue;
+        } //иначе деление на 0
+        y2=(log(arrR[j])-log(arrR[i]))/(arrW[j]*arrW[j]-arrW[i]*arrW[i]);
+        x2=arrW[j];
+        sum+=(y1+y2)/2*(x2-x1);
+        y1=y2;
+        x1=x2;
+        //printf("цикл x1=%f, y1= %f\n", x1, y1);
+    }
+    if(isnan(sum)){
+         printf("NAN getint \n");
+    }
+    return sum;
 }
 
-
-
-void integral(){
-      all_R = get_all_R();
-      all_w = get_all_w();
-      gsl_integration_workspace * w
-        = gsl_integration_workspace_alloc (all_w.size());
-
-      double result, error;
-      w0 = all_w[0];
-      Rw0 = get_R(w0);
-      gsl_function F;
-      F.function = &f;
-
-      gsl_integration_qagp(&F, (double*) &all_w[0], (size_t) all_w.size(), 0, 1, all_w.size(),
-                           w, &result, &error);
-      QMessageBox msg;
-      msg.setText(QString::number(result));
-      msg.exec();
-      gsl_integration_workspace_free (w);
+//Коэфициент преломления n(w)
+QVector<double> getN(QVector<double> arrTETA, QVector<double> arrR, unsigned int n, QProgressBar* bar, QLabel* label){
+    QVector<double> arrN;
+    unsigned int i;
+    label->setText("N:");
+    for(i=0; i<n; i++){
+        arrN.push_back((1-arrR[i])/(1+arrR[i]-2*sqrt(arrR[i])*cos(arrTETA[i])));
+        db_update(i+1, "n", arrN[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    return arrN;
 }
+
+//Коэфициент поглощения k(w)
+QVector<double> getK(QVector<double> arrTETA, QVector<double> arrR, unsigned int n, QProgressBar* bar, QLabel* label){
+    QVector<double> arrK;
+    unsigned int i;
+    label->setText("K:");
+    for(i=0; i<n; i++){
+        arrK.push_back((2*sqrt(arrR[i])*sin(arrTETA[i]))/(1+arrR[i]-2*sqrt(arrR[i])*cos(arrTETA[i])));
+        db_update(i+1, "k", arrK[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    return arrK;
+}
+
+QVector<double> eps1(QVector<double> arrN, QVector<double> arrK, unsigned int n, QProgressBar* bar, QLabel* label){
+    QVector<double> arrEPS1;
+    unsigned int i;
+    label->setText("EPS1:");
+    for(i=0; i<n; i++){
+        arrEPS1.push_back(arrN[i]*arrN[i]-arrK[i]*arrK[i]);
+        db_update(i+1, "eps1", arrEPS1[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    return arrEPS1;
+}
+
+QVector<double> eps2(QVector<double> arrN, QVector<double> arrK, unsigned int n, QProgressBar* bar, QLabel* label){
+    QVector<double> arrEPS2;
+    unsigned int i;
+    label->setText("EPS2:");
+    for(i=0; i<n; i++){
+        arrEPS2.push_back(2*arrN[i]*arrK[i]);
+        db_update(i+1, "eps2", arrEPS2[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    return arrEPS2;
+}
+
+QVector<double> epsJm(QVector<double> arrEPS1, QVector<double> arrEPS2, unsigned int n, QProgressBar* bar, QLabel* label){
+    QVector<double> arrJmE;
+    unsigned int i;
+    label->setText("EPSJM:");
+    for(i=0; i<n; i++){
+        arrJmE.push_back((arrEPS2[i])/(pow(arrEPS1[i], 2)+pow(arrEPS2[i], 2)));
+        db_update(i+1, "epsJm", arrJmE[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    return arrJmE;
+}
+
+bool getintegral(QProgressBar *bar, QLabel* label){
+    unsigned int i, n;
+    QVector<double> arrTETHA, arrR, arrW, arrN, arrK, arrEPS1, arrEPS2, arrJmE;
+    arrR = db_get_all_R();
+    arrW = db_get_all_w();
+    if (arrR.size() != arrW.size()) return false;
+    n = arrR.size();
+    bar->setMaximum(n);
+    label->setText("Интеграл:");
+    for (i=0; i<n; i++){
+        arrTETHA.push_back(getint(arrR, arrW, n, i));
+        arrTETHA[i] = -1*arrW[i]/M_PI*arrTETHA[i];
+        arrTETHA[i]+=-1/(2*M_PI)*(log(arrR[0]/arrR[i])*log(fabs((arrW[0]-arrW[i])/(arrW[0]+arrW[i])))-log(arrW[n-1]/arrW[i])*log(fabs((arrW[n-1]-arrW[i])/(arrW[n-1]+arrW[i]))));
+        db_update(i+1, "tetha", arrTETHA[i]);
+        bar->setValue(i);
+        qApp->processEvents();
+    }
+    arrN = getN(arrTETHA, arrR, n, bar, label);
+    arrK = getK(arrTETHA, arrR, n, bar, label);
+    arrEPS1 = eps1(arrN, arrK, n, bar, label);
+    arrEPS2 = eps2(arrN, arrK, n, bar, label);
+    arrJmE = epsJm(arrEPS1, arrEPS2, n, bar, label);
+
+    return true;
+}
+
