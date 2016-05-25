@@ -11,28 +11,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    if (!db_connect(true)){
+    if(!db_connect()){
         QMessageBox msg;
-        msg.setWindowTitle("Alert Database");
-        msg.setText("Невозможно подключиться к серверу PostgreSQL "
-                    "(возможно клиент настроен некорректно)"
-                    " Попробовать подключить MySQL базу данных?"
-                    " (это вызовет небольшое замедление программы)");
-        msg.addButton(QMessageBox::Yes);
-        msg.addButton(QMessageBox::No);
-        if(msg.exec()==QMessageBox::Yes){
-            if(!db_connect(false)){
-                QMessageBox msg;
-                msg.setText("Невозможно подключить базу данных");
-                msg.exec();
-                db_close();
-                QApplication::exit();
-            }else{
-                ui->openButton->setEnabled(true);
-                statusBar()->showMessage("Готов к работе");
-            }
-        }else{
-        }
+        msg.setText("Невозможно подключить базу данных");
+        msg.exec();
+        db_close();
+        QApplication::exit();
     }else{
         ui->openButton->setEnabled(true);
         statusBar()->showMessage("Готов к работе");
@@ -82,6 +66,7 @@ void MainWindow::on_execButton_clicked()
     ui->graphicsButton->setEnabled(false);
 
     ui->progressTitle->setText("Вычисление...");
+    statusBar()->showMessage("Обработка");
     ui->progressBar->setVisible(true);
 
     getintegral(ui->progressBar, ui->progressCounter);
@@ -108,7 +93,3 @@ void MainWindow::on_graphicsButton_clicked()
     window->show();
 }
 
-void MainWindow::on_actionDB_load_triggered()
-{
-
-}

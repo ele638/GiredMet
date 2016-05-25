@@ -4,7 +4,7 @@
 #include <QString>
 #include <QVector>
 
-    bool db_connect(bool psql);
+    bool db_connect();
     bool db_init();
     void db_add(QString name, double value);
     void db_add(QString name1, double value1, QString name2, double value2);

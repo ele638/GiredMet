@@ -30,8 +30,7 @@ HEADERS  += mainwindow.h\
     core.h \
     database.h \
     graphwindow.h \
-    graphics.h \
-    thread.h
+    graphics.h
 
 FORMS    += mainwindow.ui \
     graphwindow.ui

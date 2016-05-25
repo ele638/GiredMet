@@ -135,18 +135,11 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDB_load">
-    <property name="title">
-     <string>DB load</string>
-    </property>
-    <addaction name="actionDB_load"/>
-   </widget>
-   <addaction name="menuDB_load"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionDB_load">
    <property name="text">
-    <string>DB load</string>
+    <string>load</string>
    </property>
   </action>
  </widget>

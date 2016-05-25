@@ -6,18 +6,11 @@
 
 QSqlDatabase db;
 
+
 // пробный метод подключения БД, неработоспособно вне моего компа
-bool db_connect(bool psql){
-     if(psql){
-         db = QSqlDatabase::addDatabase("QPSQL");
-         db.setHostName("localhost");
-         db.setDatabaseName("ele638");
-         db.setUserName("ele638");
-         db.setPassword("alpine");
-     }else{
-         db = QSqlDatabase::addDatabase("QSQLITE");
-         db.setDatabaseName(QDir::currentPath()+"/mydb.db");
-     }
+bool db_connect(){
+     db = QSqlDatabase::addDatabase("QSQLITE");
+     db.setDatabaseName(QDir::currentPath()+"/mydb.db");
      if(!db.open()){
          db.close();
          db = QSqlDatabase();
@@ -25,7 +18,7 @@ bool db_connect(bool psql){
          qDebug("База не подключена");
          return false;
      }
-     qDebug("База подключена");
+     qDebug() << "База подключена: " + QDir::currentPath() +"/mydb.db";
      return true;
 }
 
@@ -33,7 +26,7 @@ bool db_init(){
         QSqlQuery query(db);
         if (query.exec("DROP TABLE IF EXISTS calc")) qDebug("DROP TABLE exec");
         if (query.exec("CREATE TABLE calc "
-                       "(id serial PRIMARY KEY, "
+                       "(id integer PRIMARY KEY autoincrement, "
                         "r double precision, "
                         "w double precision, "
                         "tetha double precision, "
@@ -69,7 +62,7 @@ void db_add(QString name1, double value1, QString name2, double value2){
 void db_update(int index, QString name, double value){
     QSqlQuery query(db);
     if(!query.exec("UPDATE calc SET " + name + " = " + QString::number(value, 'g', 10) + " WHERE id = " + QString::number(index))){
-        qDebug() << query.lastError().text();
+        //qDebug() << "ERROR IN update" << query.lastError().text();
     }
     query.clear();
 }
@@ -106,15 +99,15 @@ QVector<double> db_get_all_R(){
 
 QVector< QVector<double> > db_get_all_epsJm(){
     QSqlQuery query(db);
-    QVector<double> r, espjm;
+    QVector<double> w, espjm;
     QVector< QVector<double> > array;
     try{
-        query.exec("SELECT r, epsjm FROM calc ORDER BY r ASC");
+        query.exec("SELECT w, epsjm FROM calc ORDER BY w ASC");
         while(query.next()){
-            r.append(query.value(0).toDouble());
+            w.append(query.value(0).toDouble());
             espjm.append(query.value(1).toDouble());
         }
-        array.append(r);
+        array.append(w);
         array.append(espjm);
         return array;
     }catch (QException e){
