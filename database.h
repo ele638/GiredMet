@@ -6,8 +6,8 @@
 
     bool db_connect();
     bool db_init();
-    void db_add(QString name, double value);
-    void db_add(QString name1, double value1, QString name2, double value2);
+    void db_add(double value1, double value2);
+    void db_exec();
     void db_update(int index, QString name, double value);
     QVector<double> db_get_all_w();
     QVector<double> db_get_all_R();

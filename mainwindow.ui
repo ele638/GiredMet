@@ -39,6 +39,20 @@
     </size>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="5" column="3">
+     <widget class="QLabel" name="progressTimer">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="4" alignment="Qt::AlignVCenter">
+     <widget class="QLabel" name="progressTitle">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="1">
      <widget class="QPushButton" name="execButton">
       <property name="enabled">
@@ -55,6 +69,16 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="graphicsButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>График</string>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="QPushButton" name="openButton">
       <property name="enabled">
@@ -65,21 +89,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
-     <widget class="QPushButton" name="exitButton">
-      <property name="text">
-       <string>Выход</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="4" alignment="Qt::AlignVCenter">
-     <widget class="QLabel" name="progressTitle">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="4" alignment="Qt::AlignBottom">
+    <item row="6" column="0" colspan="4" alignment="Qt::AlignBottom">
      <widget class="QProgressBar" name="progressBar">
       <property name="enabled">
        <bool>true</bool>
@@ -107,13 +117,10 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="graphicsButton">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
+    <item row="1" column="3">
+     <widget class="QPushButton" name="exitButton">
       <property name="text">
-       <string>График</string>
+       <string>Выход</string>
       </property>
      </widget>
     </item>
@@ -132,7 +139,7 @@
      <x>0</x>
      <y>0</y>
      <width>588</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

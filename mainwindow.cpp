@@ -48,7 +48,7 @@ void MainWindow::on_openButton_clicked()
     ui->progressBar->setValue(0);
     ui->progressBar->setVisible(true);
 
-    readFile(filename, counter, ui->progressBar);
+    readFile(filename, ui->progressBar);
 
     ui->progressTitle->setText("");
     ui->progressCounter->setText("");
@@ -69,8 +69,7 @@ void MainWindow::on_execButton_clicked()
     statusBar()->showMessage("Обработка");
     ui->progressBar->setVisible(true);
 
-    getintegral(ui->progressBar, ui->progressCounter);
-    //integral(ui->progressBar);
+    getintegral(ui->progressBar, ui->progressCounter, ui->progressTimer);
     ui->progressTitle->setText("");
     ui->progressCounter->setText("");
     ui->progressBar->setVisible(false);

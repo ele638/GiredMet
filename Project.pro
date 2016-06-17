@@ -13,9 +13,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Project
 TEMPLATE = app
 
-INCLUDEPATH += /usr/local/include/
-
-LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm
 
 SOURCES += main.cpp\
         mainwindow.cpp\

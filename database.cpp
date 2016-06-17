@@ -5,7 +5,9 @@
 #include <QVector>
 
 QSqlDatabase db;
-
+QString query_text = "";
+int counter = 0;
+QString current_value = "";
 
 // пробный метод подключения БД, неработоспособно вне моего компа
 bool db_connect(){
@@ -35,35 +37,45 @@ bool db_init(){
                         "eps1 double precision, "
                         "eps2 double precision, "
                         "epsJm double precision)")) qDebug("CREATE TABLE exec");
+        query.exec("PRAGMA journal_mode=OFF");
+        query.exec("PRAGMA synchronous=OFF");
         query.finish();
         qDebug("База пересоздана");
         return true;
 }
 
-// метод вставки элемента по имени поля
-void db_add(QString name, double value){
+void db_exec(){
+    // удалить последний пробел и запятую из строки запроса
+    if (query_text.endsWith(", ")) query_text.chop(2);
     QSqlQuery query(db);
-    if(!query.exec("INSERT INTO calc ("+name+") VALUES ("+QString::number(value)+")")){
+    if(!query.exec(query_text)){
         qDebug() << query.lastError().text();
     }
     query.clear();
+    query_text="";
+    counter = 0;
 }
 
-
-// перегрузка метода для двух полей
-void db_add(QString name1, double value1, QString name2, double value2){
-    QSqlQuery query(db);
-    if(!value1 || !value2 || !query.exec( "INSERT INTO calc ("+name1+","+name2+") VALUES ("+ QString::number(value1,'g',10)+ ","+ QString::number(value2,'g',10)+ ")")){
-        qDebug() << query.lastError().text();
-    }
-    query.clear();
+// метод вставки элементов
+void db_add(double value1, double value2){
+    if(query_text == "") query_text = "INSERT INTO calc (w, r) VALUES ";
+    if(value1 && value2) query_text.append("(" + QString::number(value1) + ", " + QString::number(value2) +"), ");
+    counter++;
+    // для исключения переполнения запроса
+    if (counter>=500) db_exec();
 }
 
 void db_update(int index, QString name, double value){
     QSqlQuery query(db);
+    if(counter>=10000){
+        query.exec("COMMIT");
+        counter=0;
+        query.exec("BEGIN");
+    }
     if(!query.exec("UPDATE calc SET " + name + " = " + QString::number(value, 'g', 10) + " WHERE id = " + QString::number(index))){
         //qDebug() << "ERROR IN update" << query.lastError().text();
     }
+    counter++;
     query.clear();
 }
 
