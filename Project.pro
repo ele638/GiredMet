@@ -32,5 +32,8 @@ HEADERS  += mainwindow.h\
 FORMS    += mainwindow.ui \
     graphwindow.ui
 
+OTHER_FILES += \
+    logo.ico
 
+win32: RC_ICONS = logo.ico
 

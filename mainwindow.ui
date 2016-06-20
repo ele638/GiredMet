@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>GiredMet</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>logo.ico</normaloff>logo.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
@@ -142,7 +146,7 @@
      <x>0</x>
      <y>0</y>
      <width>588</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

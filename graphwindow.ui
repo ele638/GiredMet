@@ -16,6 +16,10 @@
   <property name="windowTitle">
    <string>Graphics</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>logo.ico</normaloff>logo.ico</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="1" column="1">
