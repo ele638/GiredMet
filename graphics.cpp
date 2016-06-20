@@ -2,32 +2,17 @@
 #include "database.h"
 #include "qcustomplot.h"
 
-double xmax, ymax, xmin, ymin, maxi, mini;
-QVector <QVector <double> > in;
-QVector<double> x ;
-QVector<double> y ;
+QVector <QVector <double> > inJm, inWR;
+QVector<double> x_1, x_2, y_1, y_2 ;
 
 
 void initgraph(){
-        in = db_get_all_epsJm();
-        x = in[0];
-        y = in[1];
-        xmax=x.at(0);
-        xmin=x.at(1);
-        ymax=y.at(0);
-        ymin=y.at(1);
-        for(int i=2; i<x.size(); i++){
-            if (x.at(i)>xmax) xmax=x.at(i);
-            if (y.at(i)>ymax) {
-                ymax=y.at(i);
-                maxi=i;
-            }
-            if (x.at(i)<xmin) xmin=x.at(i);
-            if (y.at(i)<ymin) {
-                ymin=y.at(i);
-                mini=i;
-            }
-        }
+        inJm = db_get_all_epsJm();
+        x_1 = inJm[0];
+        y_1 = inJm[1];
+        inWR = db_get_all_W_R();
+        x_2 = inWR[0];
+        y_2 = inWR[1];
 
 }
 
@@ -35,25 +20,20 @@ void print(QCustomPlot *customPlot){
 
 
     customPlot->addGraph();
+    customPlot->addGraph();
+    customPlot->legend->setVisible(true);
 
-    customPlot->graph(0)->addData(x, y);
-    // give the axes some labels:
+    customPlot->graph(0)->addData(x_1, y_1);
+    customPlot->graph(0)->setPen(QPen(QColor(255,10,0)));
+    customPlot->graph(1)->addData(x_2, y_2);
+
+    customPlot->graph(0)->setName("epsJm(w)");
+    customPlot->graph(1)->setName("r(w)");
     customPlot->xAxis->setLabel("x");
     customPlot->yAxis->setLabel("y");
-    // set axes ranges, so we see all data:
-    customPlot->xAxis->setRange(xmin, xmax);
-    customPlot->yAxis->setRange(ymin, ymax);
+    customPlot->xAxis->setRange(x_1.first(), x_1.last());
+    customPlot->yAxis->setRange(y_1.first(), y_1.last());
+
     customPlot->replot();
 }
 
-double getmax(char in){
-    return (in=='x'?xmax:ymax);
-}
-
-double getmin(char in){
-    return (in=='x'?xmin:ymin);
-}
-
-double getmaxi(char in){
-   return (in=='x'?x.at(maxi):ymax);
-}

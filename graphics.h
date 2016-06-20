@@ -5,7 +5,4 @@
 
 void initgraph();
 void print(QCustomPlot *customPlot);
-double getmax(char in);
-double getmin(char in);
-double getmaxi(char in);
 #endif // GRAPHICS_H

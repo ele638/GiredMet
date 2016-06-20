@@ -13,7 +13,7 @@ using namespace std;
 
 QVector<double> all_R;
 QVector<double> all_w;
-QTime time;
+QTime my_time;
 QLabel* timer;
 
 int readFileSize(QString filename){
@@ -103,7 +103,7 @@ QVector<double> getN(QVector<double> arrTETA, QVector<double> arrR, unsigned int
         arrN.push_back((1-arrR[i])/(1+arrR[i]-2*sqrt(arrR[i])*cos(arrTETA[i])));
         db_update(i+1, "n", arrN[i]);
         bar->setValue(n+i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     return arrN;
@@ -118,7 +118,7 @@ QVector<double> getK(QVector<double> arrTETA, QVector<double> arrR, unsigned int
         arrK.push_back((2*sqrt(arrR[i])*sin(arrTETA[i]))/(1+arrR[i]-2*sqrt(arrR[i])*cos(arrTETA[i])));
         db_update(i+1, "k", arrK[i]);
         bar->setValue(2*n+i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     return arrK;
@@ -132,7 +132,7 @@ QVector<double> eps1(QVector<double> arrN, QVector<double> arrK, unsigned int n,
         arrEPS1.push_back(arrN[i]*arrN[i]-arrK[i]*arrK[i]);
         db_update(i+1, "eps1", arrEPS1[i]);
         bar->setValue(3*n+i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     return arrEPS1;
@@ -146,7 +146,7 @@ QVector<double> eps2(QVector<double> arrN, QVector<double> arrK, unsigned int n,
         arrEPS2.push_back(2*arrN[i]*arrK[i]);
         db_update(i+1, "eps2", arrEPS2[i]);
         bar->setValue(4*n+i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     return arrEPS2;
@@ -160,14 +160,14 @@ QVector<double> epsJm(QVector<double> arrEPS1, QVector<double> arrEPS2, unsigned
         arrJmE.push_back((arrEPS2[i])/(pow(arrEPS1[i], 2)+pow(arrEPS2[i], 2)));
         db_update(i+1, "epsJm", arrJmE[i]);
         bar->setValue(5*n+i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     return arrJmE;
 }
 
 bool getintegral(QProgressBar *bar, QLabel* label, QLabel* intimer){
-    time.start();
+    my_time.start();
     timer = intimer;
     unsigned int i, n;
     QVector<double> arrTETHA, arrR, arrW, arrN, arrK, arrEPS1, arrEPS2, arrJmE;
@@ -183,7 +183,7 @@ bool getintegral(QProgressBar *bar, QLabel* label, QLabel* intimer){
         arrTETHA[i] += -1/(2*M_PI)*(log(arrR[0]/arrR[i])*log(fabs((arrW[0]-arrW[i])/(arrW[0]+arrW[i])))-log(arrW[n-1]/arrW[i])*log(fabs((arrW[n-1]-arrW[i])/(arrW[n-1]+arrW[i]))));
         db_update(i, "tetha", arrTETHA[i]);
         bar->setValue(i);
-        timer->setText("Времени затрачено: " + QString::number(time.elapsed()/1000) + " секунд");
+        timer->setText("Времени затрачено: " + QString::number(my_time.elapsed()/1000) + " сек.");
         qApp->processEvents();
     }
     arrN = getN(arrTETHA, arrR, n, bar, label);
@@ -191,7 +191,7 @@ bool getintegral(QProgressBar *bar, QLabel* label, QLabel* intimer){
     arrEPS1 = eps1(arrN, arrK, n, bar, label);
     arrEPS2 = eps2(arrN, arrK, n, bar, label);
     arrJmE = epsJm(arrEPS1, arrEPS2, n, bar, label);
-
+    db_exec(); // небольшой костыль
     return true;
 }
 

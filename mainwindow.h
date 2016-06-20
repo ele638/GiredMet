@@ -25,8 +25,6 @@ private slots:
 
     void on_graphicsButton_clicked();
 
-    void on_actionDB_load_triggered();
-
 private:
     Ui::MainWindow *ui;
 };

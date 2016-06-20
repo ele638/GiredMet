@@ -12,6 +12,7 @@
     QVector<double> db_get_all_w();
     QVector<double> db_get_all_R();
     QVector< QVector<double> > db_get_all_epsJm();
+    QVector< QVector<double> > db_get_all_W_R();
     void db_close();
 
 #endif // DATABASE_H

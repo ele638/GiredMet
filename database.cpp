@@ -46,8 +46,9 @@ bool db_init(){
 
 void db_exec(){
     // удалить последний пробел и запятую из строки запроса
-    if (query_text.endsWith(", ")) query_text.chop(2);
     QSqlQuery query(db);
+    if (query_text == "") query.exec("COMMIT");
+    if (query_text.endsWith(", ")) query_text.chop(2);
     if(!query.exec(query_text)){
         qDebug() << query.lastError().text();
     }
@@ -127,6 +128,27 @@ QVector< QVector<double> > db_get_all_epsJm(){
     }
     return array;
 }
+
+QVector< QVector<double> > db_get_all_W_R(){
+    QSqlQuery query(db);
+    QVector<double> w, r;
+    QVector< QVector<double> > array;
+    try{
+        query.exec("SELECT w, r FROM calc ORDER BY w ASC");
+        while(query.next()){
+            w.append(query.value(0).toDouble());
+            r.append(query.value(1).toDouble());
+        }
+        array.append(w);
+        array.append(r);
+        return array;
+    }catch (QException e){
+        qDebug() << "ERROR IN db_get_all_W_R !" << query.lastError();
+    }
+    return array;
+}
+
+
 
 void db_close(){
     db.close();
